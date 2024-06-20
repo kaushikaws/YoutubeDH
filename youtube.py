@@ -52,6 +52,33 @@ def get_videos_ids(channel_id):
 video_details = get_videos_ids("UCQ8kBZG9KpEEB7nFSNOS62A")
 
 #get video info
-new
+def get_video_info(video_ids):
+    video_data=[]
+    for video_id in video_ids:
+        request=youtube.videos().list(
+            part="snippet,ContentDetails,statistics",
+            id=video_id
+        )
+        response=request.execute()
+
+        for item in response["items"]:
+            data=dict(Channel_Name=item['snippet']['channelTitle'],
+                    Channel_Id=item['snippet']['channelId'],
+                    Video_Id=item['id'],
+                    Title=item['snippet']['title'],
+                    Tags=item['snippet'].get('tags'),
+                    Thumbnail=item['snippet']['thumbnails']['default']['url'],
+                    Description=item['snippet'].get('description'),
+                    Published_Date=item['snippet']['publishedAt'],
+                    Duration=item['contentDetails']['duration'],
+                    Views=item['statistics'].get('viewCount'),
+                    Likes=item['statistics'].get('likeCount'),
+                    Comments=item['statistics'].get('commentCount'),
+                    Favorite_Count=item['statistics']['favoriteCount'],
+                    Definition=item['contentDetails']['definition'],
+                    Caption_Status=item['contentDetails']['caption']
+                    )
+            video_data.append(data)    
+    return video_data
 
 

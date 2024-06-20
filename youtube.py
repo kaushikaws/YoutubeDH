@@ -1,6 +1,6 @@
 
 from googleapiclient.discovery import build
-import pymongo
+#import pymongo
 import pandas as pd
 import streamlit as st
 #API key connection
@@ -31,7 +31,7 @@ def get_channel_info(channel_id):
                     Channel_Description=i["snippet"]["description"],
                     Playlist_Id=i["contentDetails"]["relatedPlaylists"]["uploads"])
         return data
-channel_details = get_channel_info("UCX6OQ3DkcsbYNE6H8uQQuVA")
+channel_details = get_channel_info("UCQ8kBZG9KpEEB7nFSNOS62A")
 
 #get video ids
 
@@ -49,7 +49,7 @@ def get_videos_ids(channel_id):
          if next_page_token is None:
              break
     return video_ids
-video_details = get_videos_ids("UCQ8kBZG9KpEEB7nFSNOS62A")
+video_Ids = get_videos_ids("UCQ8kBZG9KpEEB7nFSNOS62A")
 
 #get video info
 def get_video_info(video_ids):
@@ -80,5 +80,8 @@ def get_video_info(video_ids):
                     )
             video_data.append(data)    
     return video_data
+video_info = get_video_info(video_Ids)
+
+
 
 

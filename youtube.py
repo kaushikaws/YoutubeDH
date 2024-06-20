@@ -82,6 +82,33 @@ def get_video_info(video_ids):
     return video_data
 video_info = get_video_info(video_Ids)
 
+#get comment info
+def get_comment_info(video_ids):
+    Comment_data=[]
+    try:
+        for video_id in video_ids:
+            request=youtube.commentThreads().list(
+                part="snippet",
+                videoId=video_id,
+                maxResults=50
+            )
+            response=request.execute()
+
+            for item in response['items']:
+                data=dict(Comment_Id=item['snippet']['topLevelComment']['id'],
+                        Video_Id=item['snippet']['topLevelComment']['snippet']['videoId'],
+                        Comment_Text=item['snippet']['topLevelComment']['snippet']['textDisplay'],
+                        Comment_Author=item['snippet']['topLevelComment']['snippet']['authorDisplayName'],
+                        Comment_Published=item['snippet']['topLevelComment']['snippet']['publishedAt'])
+                
+                Comment_data.append(data)
+                
+    except:
+        pass
+    return Comment_data
+
+comment_info= get_comment_info(video_Ids)
+
 
 
 

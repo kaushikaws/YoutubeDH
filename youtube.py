@@ -52,5 +52,6 @@ def get_videos_ids(channel_id):
 video_details = get_videos_ids("UCQ8kBZG9KpEEB7nFSNOS62A")
 
 #get video info
+new
 
 

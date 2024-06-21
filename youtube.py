@@ -31,7 +31,7 @@ def get_channel_info(channel_id):
                     Channel_Description=i["snippet"]["description"],
                     Playlist_Id=i["contentDetails"]["relatedPlaylists"]["uploads"])
         return data
-channel_details = get_channel_info("UCQ8kBZG9KpEEB7nFSNOS62A")
+channel_details = get_channel_info("UCctcLdajnkxHT-WziLGc5fA")
 
 #get video ids
 
@@ -49,7 +49,7 @@ def get_videos_ids(channel_id):
          if next_page_token is None:
              break
     return video_ids
-video_Ids = get_videos_ids("UCQ8kBZG9KpEEB7nFSNOS62A")
+video_Ids = get_videos_ids("UCctcLdajnkxHT-WziLGc5fA")
 
 #get video info
 def get_video_info(video_ids):
@@ -108,7 +108,7 @@ def get_comment_info(video_ids):
     return Comment_data
 
 comment_info= get_comment_info(video_Ids)
-
+print(comment_info)
 
 
 

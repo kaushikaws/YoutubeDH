@@ -1,6 +1,6 @@
 
 from googleapiclient.discovery import build
-#import pymongo
+import pymongo
 import pandas as pd
 import streamlit as st
 #API key connection
@@ -108,7 +108,34 @@ def get_comment_info(video_ids):
     return Comment_data
 
 comment_info= get_comment_info(video_Ids)
-print(comment_info).
+
+#get playlist info
+
+def get_playlist_details(channel_id):
+    next_page_token=None
+    All_data=[]
+    while True:
+        request=youtube.playlists().list(part='snippet,contentDetails',
+                                         channelId=channel_id,
+                                         maxResults=50,
+                                         pageToken=next_page_token)
+        response = request.execute()
+        for item in response['items']:
+            data=dict(Playlist_Id=item['id'],
+                      Title=item['snippet']['title'],
+                      Channel_Id=item['snippet']['channelId'],
+                      Channel_Name=item['snippet']['channelTitle'],
+                      PublishedAt=item['snippet']['publishedAt'],
+                      Video_Count=item['contentDetails']['itemCount'])
+            All_data.append(data)
+        next_page_token=response.get('nextPageToken')
+        if next_page_token is None:
+            break
+    return All_data
+play = get_playlist_details("UCctcLdajnkxHT-WziLGc5fA")
+print(play)
+
+
 
 
 

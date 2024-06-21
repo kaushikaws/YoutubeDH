@@ -1,6 +1,6 @@
 
 from googleapiclient.discovery import build
-import pymongo
+from pymongo import MongoClient
 import pandas as pd
 import streamlit as st
 #API key connection
@@ -133,7 +133,25 @@ def get_playlist_details(channel_id):
             break
     return All_data
 play = get_playlist_details("UCctcLdajnkxHT-WziLGc5fA")
-print(play)
+
+connection_string = "localhost:27017"
+client = MongoClient(connection_string)
+db = client["youtube"]
+coll = db["channel_details"]
+def channel_details(channel_id):
+    ch_details=get_channel_info(channel_id)
+    pl_details=get_playlist_details(channel_id)
+    vi_ids=get_videos_ids(channel_id)
+    vi_details=get_video_info(vi_ids)
+    com_details=get_comment_info(vi_ids)
+
+    coll1=db["channel_details"]
+    coll1.insert_one({"channel_information":ch_details,"playlist_information":pl_details,
+                      "video_information":vi_details,"comment_information":com_details})
+    
+    return "upload completed successfully"
+
+mongo_db = channel_details("UCctcLdajnkxHT-WziLGc5fA")
 
 
 

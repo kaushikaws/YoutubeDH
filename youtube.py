@@ -108,7 +108,7 @@ def get_comment_info(video_ids):
     return Comment_data
 
 comment_info= get_comment_info(video_Ids)
-print(comment_info)
+print(comment_info).
 
 
 

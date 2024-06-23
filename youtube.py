@@ -3,6 +3,9 @@ from googleapiclient.discovery import build
 from pymongo import MongoClient
 import pandas as pd
 import streamlit as st
+from sqlalchemy import create_engine
+import mysql.connector
+from mysql.connector import errorcode
 #API key connection
  
 def Api_connect():
@@ -269,7 +272,7 @@ engine = create_engine(f'mysql+mysqlconnector://{rds_user}:{rds_password}@{rds_h
 table = "youtube"
 # DataFrame to MySQL
 table_name_1 = 'channels'
-df.to_sql(name=table_name, con=engine, if_exists='replace', index=False )
+df.to_sql(name=table, con=engine, if_exists='replace', index=False )
 table_name_2 = 'playlists'
 df_2.to_sql(name=table_name_2, con=engine, if_exists='replace', index=False )
 table_name_4 = 'comments'

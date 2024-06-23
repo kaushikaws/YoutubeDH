@@ -134,6 +134,8 @@ def get_playlist_details(channel_id):
     return All_data
 play = get_playlist_details("UCctcLdajnkxHT-WziLGc5fA")
 
+#upload channel datas to local Mongo DB
+
 connection_string = "localhost:27017"
 client = MongoClient(connection_string)
 db = client["youtube"]
@@ -152,6 +154,136 @@ def channel_details(channel_id):
     return "upload completed successfully"
 
 mongo_db = channel_details("UCctcLdajnkxHT-WziLGc5fA")
+
+# creating tables in mySQL
+
+rds_user = 'admin'
+rds_password = 'administrator'
+rds_host = 'database.cd6808ymyl01.ap-south-1.rds.amazonaws.com'
+rds_port = '3306'
+rds_db = 'youtube'
+try:
+    connection = mysql.connector.connect(
+        host=rds_host,
+        user=rds_user,
+        password=rds_password,
+        database=rds_db,
+        port = rds_port
+    )
+    cursor = connection.cursor()
+    print("Connected to the RDS MySQL instance successfully")
+    
+    create_db_query = """ create table if not exists channels(Channel_Name varchar(100),
+                                                            Channel_Id varchar(80) primary key,
+                                                            Subscribers bigint,
+                                                            Views bigint,
+                                                            Total_Videos int,
+                                                            Channel_Description text,
+                                                            Playlist_Id varchar(80))"""
+    qr = cursor.execute(create_db_query)
+    create_db_query_2 = '''create table if not exists playlists(PlaylistId varchar(100) primary key,
+                        Title varchar(80), 
+                        ChannelId varchar(100), 
+                        ChannelName varchar(100),
+                        PublishedAt timestamp,
+                        VideoCount int
+                        )'''
+    qr2 = cursor.execute(create_db_query_2)
+    create_db_query_3 = '''create table if not exists videos(
+                        Channel_Name varchar(150),
+                        Channel_Id varchar(100),
+                        Video_Id varchar(50) primary key, 
+                        Title varchar(150), 
+                        Tags text,
+                        Thumbnail varchar(225),
+                        Description text, 
+                        Published_Date timestamp,
+                        Duration time, 
+                        Views bigint, 
+                        Likes bigint,
+                        Comments int,
+                        Favorite_Count int, 
+                        Definition varchar(10), 
+                        Caption_Status varchar(50) 
+                        )''' 
+    qr3 = cursor.execute(create_db_query_3)
+    create_db_query4 = '''CREATE TABLE if not exists comments(Comment_Id varchar(100) primary key,
+                       Video_Id varchar(50),
+                       Comment_Text text, 
+                       Comment_Author varchar(150),
+                       Comment_Published timestamp)
+                       '''
+    qr4 = cursor.execute(create_db_query4)   
+except:
+    print("Error creating Tables")
+finally:
+    if connection.is_connected():
+        cursor.close()
+        connection.close()
+        print("MySQL connection is closed")
+
+# convering nosql  to pandas DataFrame
+# channel list
+ch_list = []
+db = client["youtube"]
+coll1 = db["channel_details"]
+for ch_data in coll1.find({},{"_id":0,"channel_information":1}):
+    ch_list.append(ch_data["channel_information"])
+df = pd.DataFrame(ch_list)
+#playlist
+pl_list = []
+db = client["youtube"]
+coll1 = db["channel_details"]
+for pl_data in coll1.find({},{"_id":0,"playlist_information":1}):
+    for i in range(len(pl_data["playlist_information"])):
+        pl_list.append(pl_data["playlist_information"][i])
+df_2 = pd.DataFrame(pl_list)
+#videos
+vi_list = []
+db = client["youtube"]
+coll1 = db["channel_details"]
+for vi_data in coll1.find({},{"_id":0,"video_information":1}):
+    for i in range(len(vi_data["video_information"])):
+        vi_list.append(vi_data["video_information"][i])
+df_3 = pd.DataFrame(vi_list)
+df_3['Tags'] = df_3['Tags'].apply(lambda x: ', '.join(x) if isinstance(x, list) else x)
+#comments
+com_list = []
+db = client["youtube"]
+coll1 = db["channel_details"]
+for com_data in coll1.find({},{"_id":0,"comment_information":1}):
+    for i in range(len(com_data["comment_information"])):
+        com_list.append(com_data["comment_information"][i])
+df_4 = pd.DataFrame(com_list)
+
+#upload datas to mysql 
+mysql_conn = mysql.connector.connect(
+    host= rds_host,
+    user=rds_user,
+    password=rds_password,
+    database=rds_db
+)
+
+# Create SQLAlchemy engine
+engine = create_engine(f'mysql+mysqlconnector://{rds_user}:{rds_password}@{rds_host}/{rds_db}')
+table = "youtube"
+# DataFrame to MySQL
+table_name_1 = 'channels'
+df.to_sql(name=table_name, con=engine, if_exists='replace', index=False )
+table_name_2 = 'playlists'
+df_2.to_sql(name=table_name_2, con=engine, if_exists='replace', index=False )
+table_name_4 = 'comments'
+df_4.to_sql(name=table_name_4, con=engine, if_exists='replace', index=False )
+table_name_3 = 'videos'
+df_3.to_sql(name=table_name_3, con=engine, if_exists='replace', index=False )
+
+# Commit the transaction
+mysql_conn.commit()
+
+# Close connections
+mysql_conn.close()
+
+print(f"DataFrame uploaded to MySQL RDS table '{table}' successfully.")
 
 
 

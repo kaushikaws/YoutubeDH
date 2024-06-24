@@ -288,7 +288,29 @@ mysql_conn.close()
 
 print(f"DataFrame uploaded to MySQL RDS table '{table}' successfully.")
 
+#streamlit
 
+# creating sidebar
+
+with st.sidebar:
+    st.title(":red[Youtube DH]")
+    st.header("Skills")
+    st.caption("python Scripting")
+    st.caption("Data Collection")
+    st.caption("API")
+    st.caption("MongoDB")
+    st.caption("MYSQL")
+
+#input to enter channel ID
+
+channel_id = st.text_input("Enter Channel ID")
+
+if st.button("collect and store data"):
+    cd_ids = []
+    db = client["youtube"]
+    coll1 = db["channel_details"]
+    for ch_data in coll1.find({},{"id":0,"channel_information":1}):
+        ch_ids.append(ch_data[""]
 
 
 
